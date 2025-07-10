@@ -1,13 +1,11 @@
+// src/core/emailService.js
 const providerA = require('../providers/mockProviderA');
 const providerB = require('../providers/mockProviderB');
 const retry = require('./retryStrategy');
-const createCircuitBreaker = require('./circuitBreaker');
+const { breakerA, breakerB } = require('./breakerManager');
 const { isDuplicate, storeKey } = require('./idempotencyStore');
 const { updateStatus, getStatus } = require('./statusTracker');
 const { log } = require('../utils/logger');
-
-const breakerA = createCircuitBreaker('ProviderA');
-const breakerB = createCircuitBreaker('ProviderB');
 
 async function sendEmail(email, idempotencyKey) {
   if (isDuplicate(idempotencyKey)) {

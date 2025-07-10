@@ -1,3 +1,4 @@
+// src/core/circuitBreaker.js
 function createCircuitBreaker(name, failureThreshold = 3, cooldown = 10000) {
   let failures = 0, lastFailureTime = null, state = 'CLOSED';
 
@@ -5,7 +6,9 @@ function createCircuitBreaker(name, failureThreshold = 3, cooldown = 10000) {
     name,
     async exec(fn) {
       const now = Date.now();
+
       if (state === 'OPEN' && now - lastFailureTime < cooldown) {
+        console.log(`[CIRCUIT] ${name} is OPEN. Skipping call.`);
         throw new Error(`${name} is in OPEN state`);
       }
 
@@ -17,7 +20,10 @@ function createCircuitBreaker(name, failureThreshold = 3, cooldown = 10000) {
       } catch (err) {
         failures++;
         lastFailureTime = now;
-        if (failures >= failureThreshold) state = 'OPEN';
+        if (failures >= failureThreshold) {
+          state = 'OPEN';
+          console.log(`[CIRCUIT] ${name} has entered OPEN state.`);
+        }
         throw err;
       }
     }
